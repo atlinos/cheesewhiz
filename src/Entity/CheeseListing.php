@@ -6,12 +6,15 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\CheeseListingRepository;
 use Carbon\Carbon;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CheeseListingRepository::class)]
 #[ApiResource(
     collectionOperations: ['get', 'post'],
     itemOperations: ['get', 'patch'],
-    shortName: 'cheeses'
+    shortName: 'cheeses',
+    normalizationContext: ['groups' => ['cheese_listing:read'], 'swagger_definition_name' => 'Read'],
+    denormalizationContext: ['groups' => ['cheese_listing:write'], 'swagger_definition_name' => 'Write']
 )]
 class CheeseListing
 {
@@ -21,19 +24,22 @@ class CheeseListing
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['cheese_listing:read', 'cheese_listing:write'])]
     private $title;
 
     #[ORM\Column(type: 'text')]
+    #[Groups(['cheese_listing:read'])]
     private $description;
 
     #[ORM\Column(type: 'integer')]
+    #[Groups(['cheese_listing:read', 'cheese_listing:write'])]
     private $price;
 
     #[ORM\Column(type: 'datetime')]
     private $createdAt;
 
     #[ORM\Column(type: 'boolean')]
-    private $isPublished;
+    private $isPublished = false;
 
     public function __construct()
     {
@@ -62,6 +68,14 @@ class CheeseListing
         return $this->description;
     }
 
+    public function setDescription(string $description): self
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    #[Groups(['cheese_listing:write'])]
     public function setTextDescription(string $description): self
     {
         $this->description = nl2br($description);
@@ -86,6 +100,7 @@ class CheeseListing
         return $this->createdAt;
     }
 
+    #[Groups(['cheese_listing:read'])]
     public function getCreatedAtAgo(): string
     {
         return Carbon::instance($this->getCreatedAt())->diffForHumans();
