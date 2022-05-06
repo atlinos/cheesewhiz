@@ -19,9 +19,18 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
     collectionOperations: ['get', 'post'],
     itemOperations: ['get', 'patch'],
     shortName: 'cheeses',
-    normalizationContext: ['groups' => ['cheese_listing:read'], 'swagger_definition_name' => 'Read'],
-    denormalizationContext: ['groups' => ['cheese_listing:write'], 'swagger_definition_name' => 'Write'],
-    attributes: ['pagination_items_per_page' => 2]
+    normalizationContext: [
+        'groups' => ['cheese_listing:read'],
+        'swagger_definition_name' => 'Read'
+    ],
+    denormalizationContext: [
+        'groups' => ['cheese_listing:write'],
+        'swagger_definition_name' => 'Write'
+    ],
+    attributes: [
+        'pagination_items_per_page' => 2,
+        'formats' => ['jsonld', 'json', 'html', 'jsonhal', 'csv' => 'text/csv']
+    ]
 )]
 #[ApiFilter(BooleanFilter::class, properties: ['isPublished'])]
 #[ApiFilter(SearchFilter::class, properties: ['title' => 'partial', 'description' => 'partial'])]
